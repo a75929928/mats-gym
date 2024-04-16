@@ -7,9 +7,9 @@ from mats_gym import BaseScenarioEnv
 from mats_gym.envs.replays import SimulationHistory
 from mats_gym.envs.scenario_env_wrapper import BaseScenarioEnvWrapper
 
-
+from typing import Union
 class ReplayWrapper(BaseScenarioEnvWrapper):
-    def __init__(self, env: BaseScenarioEnvWrapper | BaseScenarioEnv, replay_dir: str = "/home/carla") -> None:
+    def __init__(self, env: Union[BaseScenarioEnvWrapper,BaseScenarioEnv], replay_dir: str = "/home/carla") -> None:
         super().__init__(env)
         self._action_records = []
         self._current_episode = []
@@ -32,7 +32,7 @@ class ReplayWrapper(BaseScenarioEnvWrapper):
         )
         return SimulationHistory(history)
 
-    def reset(self, seed: int | None = None, options: dict | None = None) -> tuple[dict, dict[Any, dict]]:
+    def reset(self, seed: Union[int,None] = None, options: Union[dict,None] = None) -> tuple[dict, dict[Any, dict]]:
         options = options or {}
         self.client.stop_recorder()
         obs, info = self.env.reset(seed=seed, options=options)

@@ -13,7 +13,7 @@ from docker.errors import NotFound
 
 from mats_gym.servers.server import CarlaServer
 
-c_globals = ctypes.CDLL(None)  # POSIX
+# c_globals = ctypes.CDLL(None)  # POSIX
 
 
 def make_handler(container_name: str):

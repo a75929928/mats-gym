@@ -37,7 +37,8 @@ def main():
     # You can provide either a single scenario or a list of scenarios. Moreover, you can control how many scenes per
     # scenario should be generated.
     env = mats_gym.scenic_env(
-        host="localhost",  # The host to connect to
+        host="127.0.0.1",  # The host to connect to
+        # host="localhost",  # The host to connect to
         port=2000,  # The port to connect to
         scenario_specification="scenarios/scenic/carla_challenge_08.scenic", # Path to the scenario specification
         scenes_per_scenario=5,  # How many scenes should be generated per scenario

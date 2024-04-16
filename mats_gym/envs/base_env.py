@@ -30,7 +30,7 @@ from mats_gym.util import network
 
 import time
 
-
+from collections import OrderedDict
 class BaseScenarioEnv(ParallelEnv):
     """
     Base class for scenario environments. This class manages the execution of a scenario.
@@ -236,7 +236,8 @@ class BaseScenarioEnv(ParallelEnv):
             sensor_obs = self._sensors[agent].get_observations()
             obs.update(sensor_obs)
 
-        return obs
+        # return obs
+        return OrderedDict(obs)
 
     def _reload_world(self, reload_world: bool = True):
         world = self._client.get_world()
@@ -309,6 +310,7 @@ class BaseScenarioEnv(ParallelEnv):
             np.random.seed(seed)
             self._seed = seed
 
+        if len(options) == 0: options={"client": carla.Client("localhost", 2000)}
         if "client" in options:
             self._client = options["client"]
             CarlaDataProvider.set_client(self._client)

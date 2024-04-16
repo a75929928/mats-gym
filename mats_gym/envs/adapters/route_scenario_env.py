@@ -16,6 +16,8 @@ import mats_gym
 from mats_gym.envs.scenario_env_wrapper import BaseScenarioEnvWrapper
 from mats_gym.scenarios.actor_configuration import ActorConfiguration
 
+from typing import Dict, Union, Tuple
+
 class RouteScenarioEnv(BaseScenarioEnvWrapper):
 
     def __init__(
@@ -70,7 +72,7 @@ class RouteScenarioEnv(BaseScenarioEnvWrapper):
             obs[agent]["progress"] = np.array(self._progress.get(agent, 0), dtype=np.float32)
         return obs
 
-    def reset(self, seed: int | None = None, options: dict | None = None) -> tuple[dict[AgentID, ObsType], dict[AgentID, dict]]:
+    def reset(self, seed: Union[int, None] = None, options: Union[Dict, None] = None) -> tuple[dict[AgentID, ObsType], dict[AgentID, dict]]:
         options = options or {}
         if options.get("reload", True):
             if "route" not in options:
