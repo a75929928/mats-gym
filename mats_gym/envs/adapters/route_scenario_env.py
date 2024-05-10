@@ -24,10 +24,11 @@ class RouteScenarioEnv(BaseScenarioEnvWrapper):
             self,
             route_file: str,
             actor_configuration: ActorConfiguration,
+            agent_instance: None,
             reset_progress_threshold: float = None,
             scenario_runner_path: str = None,
             debug_mode: int = 0,
-            **kwargs
+            **kwargs,
     ):
         if scenario_runner_path is None:
             scenario_runner_path = f"{os.path.dirname(srunner.__file__)}/../"
@@ -43,8 +44,11 @@ class RouteScenarioEnv(BaseScenarioEnvWrapper):
         self._info = {}
         self._reset_progress_threshold = reset_progress_threshold
 
+        # add agent instance for route setting
+        config = configs[0]
+        config.agent = agent_instance
         env = mats_gym.raw_env(
-            config=configs[0],
+            config=config,
             scenario_fn=self._scenario_fn,
             **kwargs
         )
@@ -151,6 +155,7 @@ class RouteScenarioEnv(BaseScenarioEnvWrapper):
 
             # The list of carla.Location that serve as keypoints on this route
             positions = []
+            # for position in route.iter('waypoint'):
             for position in route.find('waypoints').iter('position'):
                 loc = carla.Location(
                     x=float(position.attrib['x']),
