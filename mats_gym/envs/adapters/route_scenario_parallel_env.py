@@ -18,10 +18,7 @@ from mats_gym.scenarios.actor_configuration import ActorConfiguration
 
 from typing import Dict, Union, Tuple
 
-'''
-    This Env intends to implement parallel agent with differentr scenarios
-'''
-class RouteScenarioEnv(BaseScenarioEnvWrapper):
+class RouteScenarioParallelEnv(BaseScenarioEnvWrapper):
 
     def __init__(
             self,
@@ -155,8 +152,6 @@ class RouteScenarioEnv(BaseScenarioEnvWrapper):
             route_config.town = route.attrib["town"]
             route_config.name = "RouteScenario_{}".format(route_id)
             route_config.weather = self._parse_weather(route)
-            
-            route_config.scenario_file = self._parse_weather(route) # use leaderboard scenario_config
 
             # The list of carla.Location that serve as keypoints on this route
             positions = []

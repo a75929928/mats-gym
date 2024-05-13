@@ -1,0 +1,25 @@
+CARLA_ROOT: 'D:\Code\carla\CARLA_0.9.15'
+WORK_DIR: 'D:\Code\.LLM\LMDrive'
+MATS_ROOT: 'D:\Code\carla\mats-gym'
+CARLA_SERVER: '%CARLA_ROOT%\CarlaUE4.exe'
+
+PYTHONPATH: '%CARLA_ROOT%\PythonAPI;%CARLA_ROOT%\PythonAPI\carla'
+
+SCENARIOS: '%WORK_DIR%\leaderboard\data\official\all_towns_traffic_scenarios_public.json'
+ROUTES_SUBSET: 0
+ROUTES: '%MATS_ROOT%\scenarios\routes\training.xml'
+# ROUTES: '%WORK_DIR%\langauto\benchmark_long.xml'
+os.environ.ROUTES: '%ROUTES%'
+
+REPETITIONS: '1'
+CHALLENGE_TRACK_CODENAME: 'SENSORS'
+CHECKPOINT_ENDPOINT: '%WORK_DIR%\results\transfuser_plus_plus_longest6.json'
+TEAM_AGENT: '%WORK_DIR%\leaderboard\team_code\lmdriver_agent.py'
+AGENT_CONFIG: '%WORK_DIR%\leaderboard\team_code\lmdriver_config.py'
+DEBUG_CHALLENGE: '0'
+RESUME: '1'
+DATAGEN: '0'
+SAVE_PATH: '%WORK_DIR%\results'
+
+UNCERTAINTY_THRESHOLD: '0.33'
+BENCHMARK: 'longest6'

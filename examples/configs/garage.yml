@@ -1,0 +1,22 @@
+CARLA_ROOT: 'D:/Code/carla/CARLA_0.9.15'
+WORK_DIR: 'D:/Code/.SOTA/carla_garage'
+MATS_ROOT: 'D:/Code/carla/mats-gym'
+CARLA_SERVER: '%CARLA_ROOT%/CarlaUE4.exe'
+
+PYTHONPATH: ''
+PYTHONPATH: '%PYTHONPATH%;%CARLA_ROOT%/PythonAPI;%CARLA_ROOT%/PythonAPI/carla'
+
+SCENARIOS: '%WORK_DIR%/leaderboard/data/scenarios/eval_scenarios.json'
+ROUTES: '%MATS_ROOT%/scenarios/routes/training.xml'
+REPETITIONS: '1'
+CHALLENGE_TRACK_CODENAME: 'SENSORS'
+CHECKPOINT_ENDPOINT: '%WORK_DIR%/results/transfuser_plus_plus_longest6.json'
+TEAM_AGENT: '%WORK_DIR%/team_code/sensor_agent.py'
+AGENT_CONFIG: '%WORK_DIR%/pretrained_models/longest6/tfpp_all_0'
+DEBUG_CHALLENGE: '0'
+RESUME: '1'
+DATAGEN: '0'
+SAVE_PATH: '%WORK_DIR%/results'
+
+UNCERTAINTY_THRESHOLD: '0.33'
+BENCHMARK: 'longest6'

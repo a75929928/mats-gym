@@ -18,20 +18,16 @@ from mats_gym.scenarios.actor_configuration import ActorConfiguration
 
 from typing import Dict, Union, Tuple
 
-'''
-    This Env intends to implement parallel agent with differentr scenarios
-'''
 class RouteScenarioEnv(BaseScenarioEnvWrapper):
 
     def __init__(
             self,
             route_file: str,
             actor_configuration: ActorConfiguration,
-            agent_instance: None,
             reset_progress_threshold: float = None,
             scenario_runner_path: str = None,
             debug_mode: int = 0,
-            **kwargs,
+            **kwargs
     ):
         if scenario_runner_path is None:
             scenario_runner_path = f"{os.path.dirname(srunner.__file__)}/../"
@@ -47,11 +43,8 @@ class RouteScenarioEnv(BaseScenarioEnvWrapper):
         self._info = {}
         self._reset_progress_threshold = reset_progress_threshold
 
-        # add agent instance for route setting
-        config = configs[0]
-        config.agent = agent_instance
         env = mats_gym.raw_env(
-            config=config,
+            config=configs[0],
             scenario_fn=self._scenario_fn,
             **kwargs
         )
@@ -155,12 +148,9 @@ class RouteScenarioEnv(BaseScenarioEnvWrapper):
             route_config.town = route.attrib["town"]
             route_config.name = "RouteScenario_{}".format(route_id)
             route_config.weather = self._parse_weather(route)
-            
-            route_config.scenario_file = self._parse_weather(route) # use leaderboard scenario_config
 
             # The list of carla.Location that serve as keypoints on this route
             positions = []
-            # for position in route.iter('waypoint'):
             for position in route.find('waypoints').iter('position'):
                 loc = carla.Location(
                     x=float(position.attrib['x']),
