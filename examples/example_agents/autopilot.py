@@ -5,10 +5,12 @@ from leaderboard.envs.sensor_interface import SensorInterface
 from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 from srunner.tools.route_manipulation import interpolate_trajectory
 
+def get_entry_point():
+    return "AutopilotAgent"
 
 class AutopilotAgent(AutonomousAgent):
     def __init__(
-        self, role_name: str, carla_host, carla_port, debug=False, opt_dict={}
+        self, role_name: str, carla_host="localhost", carla_port=2000, debug=False, opt_dict={}
     ):
         self.track = Track.SENSORS
         #  current global plans to reach a destination

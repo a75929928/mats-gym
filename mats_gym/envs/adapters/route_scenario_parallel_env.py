@@ -18,6 +18,9 @@ from mats_gym.scenarios.actor_configuration import ActorConfiguration
 
 from typing import Dict, Union, Tuple
 
+# Try to use global route planner
+from agents.navigation.global_route_planner import GlobalRoutePlanner
+
 class RouteScenarioParallelEnv(BaseScenarioEnvWrapper):
 
     def __init__(
@@ -33,7 +36,9 @@ class RouteScenarioParallelEnv(BaseScenarioEnvWrapper):
         if scenario_runner_path is None:
             scenario_runner_path = f"{os.path.dirname(srunner.__file__)}/../"
         os.environ["SCENARIO_RUNNER_ROOT"] = scenario_runner_path
-        configs = self._parse_routes_file(route_filename=route_file)
+        configs = self._parse_routes_file(route_filename=route_file) # read waypoint from xml
+        # configs = self._set_random_route(route_filename=route_file) # set waypoint with random seed
+
         for config in configs:
             config.ego_vehicles = [actor_configuration]
         self._ego_role_name = actor_configuration.rolename or "hero"
@@ -50,6 +55,7 @@ class RouteScenarioParallelEnv(BaseScenarioEnvWrapper):
         env = mats_gym.raw_env(
             config=config,
             scenario_fn=self._scenario_fn,
+            no_rendering_mode=True,
             **kwargs
         )
         super().__init__(env)
@@ -152,6 +158,8 @@ class RouteScenarioParallelEnv(BaseScenarioEnvWrapper):
             route_config.town = route.attrib["town"]
             route_config.name = "RouteScenario_{}".format(route_id)
             route_config.weather = self._parse_weather(route)
+            
+            route_config.scenario_file = self._parse_weather(route) # use leaderboard scenario_config
 
             # The list of carla.Location that serve as keypoints on this route
             positions = []
@@ -194,6 +202,44 @@ class RouteScenarioParallelEnv(BaseScenarioEnvWrapper):
                         scenario_config.other_parameters[elem.tag] = elem.attrib
 
                 scenario_configs.append(scenario_config)
+            route_config.scenario_configs = scenario_configs
+            route_configs.append(route_config)
+        return route_configs
+    
+    def _set_random_route(self, route_filename: str, single_route_id: str = None):
+        """
+        Returns a list of route configuration elements.
+        Still use route file to create configuration
+        But waypoint is generated randomly with spawn points and global planner
+        """
+
+        route_configs = []
+        tree = ElementTree.parse(route_filename)
+        for route in tree.iter("route"):
+
+            route_id = route.attrib["id"]
+            if single_route_id and route_id != single_route_id:
+                continue
+
+            route_config = RouteScenarioConfiguration()
+            route_config.town = route.attrib["town"]
+            route_config.name = "RouteScenario_{}".format(route_id)
+            route_config.weather = self._parse_weather(route)
+
+            # The list of carla.Location that serve as keypoints on this route
+            positions = []
+            for position in route.iter('waypoint'):
+            # for position in route.find('waypoints').iter('position'):
+                loc = carla.Location(
+                    x=float(position.attrib['x']),
+                    y=float(position.attrib['y']),
+                    z=float(position.attrib['z'])
+                )
+                positions.append(loc)
+            route_config.keypoints = positions
+
+            # Just ignore scenario
+            scenario_configs = []
             route_config.scenario_configs = scenario_configs
             route_configs.append(route_config)
         return route_configs

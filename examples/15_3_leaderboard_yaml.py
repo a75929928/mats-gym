@@ -32,12 +32,12 @@ import os
 import yaml
 import inspect
 
-POLICY = 'garage' # options: 'garage', 'lmdrive', 'ppo', 'expert
-# 定义替换函数
+POLICY = 'expert' # options: 'garage', 'lmdrive', 'ppo', 'expert
+
 def replace_config_values(config_dict, key_value_dict):
     for key, value in config_dict.items():
         if isinstance(value, str):
-            # Replace the %key% to its act
+            # Replace the %key% to its actual value
             for k, v in key_value_dict.items():
                 value = value.replace(f'%{k}%', v)
             config_dict[key] = value
@@ -100,9 +100,7 @@ def main(args):
         transform=None
     )
     
-    if POLICY == 'expert':
-        agent = AutopilotAgent(role_name=actor_config.rolename, carla_host="localhost", carla_port=2000)
-    else: agent = agent_loader(args)
+    agent = agent_loader(args)
     
     env = mats_gym.route_scenario_env(
         route_file=args.routes,
