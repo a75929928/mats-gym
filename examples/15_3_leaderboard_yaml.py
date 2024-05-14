@@ -32,7 +32,7 @@ import os
 import yaml
 import inspect
 
-POLICY = 'expert' # options: 'garage', 'lmdrive', 'ppo', 'expert
+POLICY = 'expert' # options: 'transfuser', 'garage', 'lmdrive', 'ppo', 'expert'
 
 def replace_config_values(config_dict, key_value_dict):
     for key, value in config_dict.items():

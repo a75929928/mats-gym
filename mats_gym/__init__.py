@@ -4,7 +4,7 @@ import carla
 import gymnasium
 import pettingzoo
 
-from mats_gym.envs import RouteScenarioEnv, RouteScenarioParallelEnv
+from mats_gym.envs import RouteScenarioEnv, ParallelEnv
 from mats_gym.envs.base_env import BaseScenarioEnv
 from mats_gym.envs.adapters import ScenarioRunnerEnv, ScenicEnv, OpenScenarioEnv
 
@@ -44,6 +44,6 @@ def openscenario_env(host: str = None, port: int = None, **kwargs) -> OpenScenar
 def route_scenario_env(host: str = None, port: int = None, **kwargs) -> RouteScenarioEnv:
     return _make_env(RouteScenarioEnv, host=host, port=port, **kwargs)
 
-def route_scenario_parallel_env(host: str = None, port: int = None, **kwargs) -> RouteScenarioParallelEnv:
-    return _make_env(RouteScenarioParallelEnv, host=host, port=port, **kwargs)
+def parallel_env(host: str = None, port: int = None, **kwargs) -> ParallelEnv:
+    return _make_env(ParallelEnv, host=host, port=port, **kwargs)
 
