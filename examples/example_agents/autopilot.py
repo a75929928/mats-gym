@@ -8,6 +8,7 @@ from srunner.tools.route_manipulation import interpolate_trajectory
 def get_entry_point():
     return "AutopilotAgent"
 
+import re
 class AutopilotAgent(AutonomousAgent):
     def __init__(
         self, role_name: str, carla_host="localhost", carla_port=2000, debug=False, opt_dict={}
@@ -30,10 +31,14 @@ class AutopilotAgent(AutonomousAgent):
 
     def setup(self, path_to_conf_file, route=None, trajectory=None):
         actors = CarlaDataProvider.get_world().get_actors()
+        
+        # search agent named like "hero_xx"
+        pattern = r'^hero_\d{1,3}(?<=\d)$'
         vehicle = [
             actor
             for actor in actors
-            if actor.attributes.get("role_name") == self.role_name
+            if isinstance(actor.attributes.get("role_name"), str) and 
+            re.match(pattern, actor.attributes.get("role_name")) is not None
         ][0]
 
         if vehicle:
@@ -83,58 +88,59 @@ class AutopilotAgent(AutonomousAgent):
             self._agent.set_global_plan(plan)
 
     def sensors(self):
-        sensors = [
-            {
-                "type": "sensor.camera.rgb",
-                "x": 0.7,
-                "y": 0.0,
-                "z": 1.60,
-                "roll": 0.0,
-                "pitch": 0.0,
-                "yaw": 0.0,
-                "width": 800,
-                "height": 600,
-                "fov": 100,
-                "id": "Center",
-            },
-            {
-                "type": "sensor.camera.rgb",
-                "x": 0.7,
-                "y": -0.4,
-                "z": 1.60,
-                "roll": 0.0,
-                "pitch": 0.0,
-                "yaw": -45.0,
-                "width": 800,
-                "height": 600,
-                "fov": 100,
-                "id": "Left",
-            },
-            {
-                "type": "sensor.camera.rgb",
-                "x": 0.7,
-                "y": 0.4,
-                "z": 1.60,
-                "roll": 0.0,
-                "pitch": 0.0,
-                "yaw": 45.0,
-                "width": 800,
-                "height": 600,
-                "fov": 100,
-                "id": "Right",
-            },
-            {
-                "type": "sensor.lidar.ray_cast",
-                "x": 0.7,
-                "y": -0.4,
-                "z": 1.60,
-                "roll": 0.0,
-                "pitch": 0.0,
-                "yaw": -45.0,
-                "id": "LIDAR",
-            },
-            {"type": "sensor.other.gnss", "x": 0.7, "y": -0.4, "z": 1.60, "id": "GPS"},
-        ]
+        sensors = []
+        # sensors = [
+        #     {
+        #         "type": "sensor.camera.rgb",
+        #         "x": 0.7,
+        #         "y": 0.0,
+        #         "z": 1.60,
+        #         "roll": 0.0,
+        #         "pitch": 0.0,
+        #         "yaw": 0.0,
+        #         "width": 800,
+        #         "height": 600,
+        #         "fov": 100,
+        #         "id": "Center",
+        #     },
+        #     {
+        #         "type": "sensor.camera.rgb",
+        #         "x": 0.7,
+        #         "y": -0.4,
+        #         "z": 1.60,
+        #         "roll": 0.0,
+        #         "pitch": 0.0,
+        #         "yaw": -45.0,
+        #         "width": 800,
+        #         "height": 600,
+        #         "fov": 100,
+        #         "id": "Left",
+        #     },
+        #     {
+        #         "type": "sensor.camera.rgb",
+        #         "x": 0.7,
+        #         "y": 0.4,
+        #         "z": 1.60,
+        #         "roll": 0.0,
+        #         "pitch": 0.0,
+        #         "yaw": 45.0,
+        #         "width": 800,
+        #         "height": 600,
+        #         "fov": 100,
+        #         "id": "Right",
+        #     },
+        #     {
+        #         "type": "sensor.lidar.ray_cast",
+        #         "x": 0.7,
+        #         "y": -0.4,
+        #         "z": 1.60,
+        #         "roll": 0.0,
+        #         "pitch": 0.0,
+        #         "yaw": -45.0,
+        #         "id": "LIDAR",
+        #     },
+        #     {"type": "sensor.other.gnss", "x": 0.7, "y": -0.4, "z": 1.60, "id": "GPS"},
+        # ]
 
         return sensors
 

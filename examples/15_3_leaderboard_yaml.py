@@ -32,7 +32,7 @@ import os
 import yaml
 import inspect
 
-POLICY = 'expert' # options: 'transfuser', 'garage', 'lmdrive', 'ppo', 'expert'
+POLICY = 'garage' # options: 'transfuser', 'garage', 'lmdrive', 'ppo', 'expert'
 
 def replace_config_values(config_dict, key_value_dict):
     for key, value in config_dict.items():
@@ -107,8 +107,8 @@ def main(args):
         agent_instance=agent, # added 
         actor_configuration=actor_config,
         render_mode="human",
-        render_config=renderers.camera_top(agent="hero"),
-        # render_config=renderers.camera_pov(agent="hero"),
+        # render_config=renderers.camera_top(agent="hero"),
+        render_config=renderers.camera_pov(agent="hero"),
         sensor_specs={"hero": agent.sensors()},  # sensor specs for each agent
     )
 

@@ -411,6 +411,14 @@ class BaseScenarioEnv(ParallelEnv):
 
         # Update simulation and monitors
         CarlaDataProvider.get_world().tick()
+
+        # Check vehicles in simulation
+        # vehicle_num = 0
+        # for vehicle in CarlaDataProvider.get_world().get_actors().filter('*vehicle*'):
+        #     # print(vehicle.type_id, vehicle.id)
+        #     vehicle_num += 1
+        # logging.debug(f"Scenario status: {vehicle_num}")
+
         self._current_step += 1
         CarlaDataProvider.on_carla_tick()
         snapshot = CarlaDataProvider.get_world().get_snapshot()
@@ -465,11 +473,11 @@ class BaseScenarioEnv(ParallelEnv):
                     steer=round(act[1].item(), 2),
                     brake=round(act[2].item(), 2),
                 )
-                # logging.debug(
-                #    f"Applying controls: "
-                #    f"throttle={control.throttle:.2f}, steer={control.steer:.2f}, brake={control.brake:.2f} "
-                #    f"to agent {agent}."
-                # )
+                logging.debug(
+                   f"Applying controls: "
+                   f"throttle={control.throttle:.2f}, steer={control.steer:.2f}, brake={control.brake:.2f} "
+                   f"to agent {agent}."
+                )
                 command = carla.command.ApplyVehicleControl(actors[agent], control)
                 controls[agent] = control
             elif isinstance(actors[agent], carla.Walker):
