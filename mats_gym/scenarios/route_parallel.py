@@ -56,8 +56,8 @@ SECONDS_GIVEN_PER_METERS = 0.4
 class RouteParallel(BasicScenario):
 
     """
-    Implementation of a RouteScenario, i.e. a scenario that consists of driving along a pre-defined route,
-    along which several smaller scenarios are triggered
+    No longer depend on the RouteScenario based on xml scenario files
+    
     """
 
     def __init__(self, world, config, debug_mode=False, criteria_enable=True, timeout=300):
@@ -67,7 +67,7 @@ class RouteParallel(BasicScenario):
 
         self.config = config
         self.spawn_points = world.get_map().get_spawn_points()
-        self.grp = GlobalRoutePlanner(carla_map=world.get_map(), sampling_resolution=25.0)
+        self.grp = GlobalRoutePlanner(carla_map=world.get_map(), sampling_resolution=5.0)
 
         ego_vehicles = []
         self.route = {}
@@ -98,6 +98,7 @@ class RouteParallel(BasicScenario):
         - debug_mode: boolean to decide whether or not the route poitns are printed
         """
 
+        # TODO sometimes it returns [], fix it
         sp = self.spawn_points
         num_list = list(range(0, len(sp))) # get the list of indices
         start_index, end_index = random.sample(num_list, 2)
@@ -156,6 +157,7 @@ class RouteParallel(BasicScenario):
     def _draw_waypoints(self, world, waypoints, vertical_shift, size, persistency=-1, downsample=1):
         """
         Draw a list of waypoints at a certain height given in vertical_shift.
+        TODO Set various color for different vehicles
         """
         for i, w in enumerate(waypoints):
             if i % downsample != 0:

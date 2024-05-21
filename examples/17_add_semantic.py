@@ -35,7 +35,7 @@ import inspect
 # Choose which policy to use
 # Options: 'garage','expert, TODO 'lmdrive', 'ppo', 'transfuser', 
 POLICY = 'garage' 
-NUM_EGO_VEHICLES = 20
+NUM_EGO_VEHICLES = 3
 
 def replace_config_values(config_dict, key_value_dict):
     for key, value in config_dict.items():
@@ -121,8 +121,7 @@ def main(args):
     # agent_instances = {f"hero_{i}": agent_loader(args) for i in range(NUM_EGO_VEHICLES)}
     agent_instances = load_agents(args, NUM_EGO_VEHICLES)
     
-    env = mats_gym.parallel_env(
-        route_file=args.routes,
+    env = mats_gym.communication_env(
         agent_instances=agent_instances, # added 
         actor_configuration=actor_config,
         # Rendering
@@ -133,7 +132,7 @@ def main(args):
 
         num_agents = NUM_EGO_VEHICLES,
         sensor_specs={agent_id: agent_ins.sensors() for agent_id, agent_ins in agent_instances.items()},  # sensor specs for each agent
-        timestep=0.05, # fixed_delta_seconds: interval of function step means in carla
+        # timestep=0.05, # fixed_delta_seconds: interval of function step means in carla
     )
 
     client = carla.Client("localhost", 2000)
