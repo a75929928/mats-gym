@@ -413,11 +413,7 @@ class BaseScenarioEnv(ParallelEnv):
         CarlaDataProvider.get_world().tick()
 
         # Check vehicles in simulation
-        # vehicle_num = 0
-        # for vehicle in CarlaDataProvider.get_world().get_actors().filter('*vehicle*'):
-        #     # print(vehicle.type_id, vehicle.id)
-        #     vehicle_num += 1
-        # logging.debug(f"Scenario status: {vehicle_num}")
+        logging.debug(f"Number of vehicles: {len(CarlaDataProvider.get_world().get_actors().filter('*vehicle*'))}")
 
         self._current_step += 1
         CarlaDataProvider.on_carla_tick()

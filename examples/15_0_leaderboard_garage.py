@@ -43,7 +43,7 @@ def replace_config_values(config_dict, key_value_dict):
             # Consider dictionary, use recursion
             replace_config_values(value, key_value_dict)
 def config_loader(args):
-    with open('D:\Code\carla\mats-gym\examples\yaml\garage.yml', 'r') as file:
+    with open('D:\Code\carla\mats-gym\examples\configs\garage.yml', 'r') as file:
         config = yaml.safe_load(file)
 
     # Change %key% in config string to the actual path

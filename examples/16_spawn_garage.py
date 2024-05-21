@@ -20,7 +20,7 @@ from mats_gym.scenarios.actor_configuration import ActorConfiguration
 from examples.example_agents import AutopilotAgent
 
 """
-This example shows how run a leaderboard route scenario with a custom agent.
+This example shows how run a leaderboard route scenario with certain agent.
 """
 import importlib
 import os
@@ -32,18 +32,22 @@ import os
 import yaml
 import inspect
 
+# Choose which policy to use
+# Options: 'garage','expert, TODO 'lmdrive', 'ppo', 'transfuser', 
+POLICY = 'garage' 
+NUM_EGO_VEHICLES = 5
 
-# 定义替换函数
 def replace_config_values(config_dict, key_value_dict):
     for key, value in config_dict.items():
         if isinstance(value, str):
-            # Replace the %key% to its act
+            # Replace the %key% to its actual value
             for k, v in key_value_dict.items():
                 value = value.replace(f'%{k}%', v)
             config_dict[key] = value
         elif isinstance(value, dict):
             # Consider dictionary, use recursion
             replace_config_values(value, key_value_dict)
+
 def config_loader(policy):
     yaml_path = os.path.join(os.path.dirname(__file__), 'configs', policy + '.yml')
     with open(yaml_path, 'r') as file:
@@ -58,26 +62,41 @@ def config_loader(policy):
             config[key] = os.path.expandvars(value)
 
     return config
-def agent_loader(args):
+
+def load_agents(args, num_agents):
     """
-    Used in Leaderboard 
-    Load agent with importlib
+    Load multiple agent instances using importlib.
+
+    :param args: The arguments containing the path to the agent module and its configuration.
+    :param num_agents: The number of agent instances to load.
+    :return: A list of agent instances.
     """
-    # Load agent
-    module_name = os.path.basename(args.agent).split('.')[0]
-    sys.path.insert(0, os.path.dirname(args.agent)) # insert parent dir to path
-    module_agent = importlib.import_module(module_name)
-    agent_class_name = getattr(module_agent, 'get_entry_point')()
-    
-    now = datetime.now()
-    route_string = pathlib.Path(os.environ.get('ROUTES', '')).stem + '_'
-    # route_string += f'route{config.index}'
-    route_date_string = route_string + '_' + '_'.join(
-        map(lambda x: '%02d' % x, (now.month, now.day, now.hour, now.minute, now.second)))
-    
-    agent_instance = getattr(module_agent, agent_class_name)(args.agent_config)
-    # agent_instance = getattr(module_agent, agent_class_name)(args.agent_config, route_date_string)
-    return agent_instance
+    # List to store the loaded agent instances
+    agents_instances = {}
+
+    # Load each agent instance
+    for i in range(num_agents):
+        # Insert parent dir to path
+        sys.path.insert(0, os.path.dirname(args.agent))
+
+        # Import the agent module
+        module_name = os.path.basename(args.agent).split('.')[0]
+        module_agent = importlib.import_module(module_name)
+
+        # Get the agent class name from the entry point function
+        agent_class_name = getattr(module_agent, 'get_entry_point')()
+
+        # Create an instance of the agent class with the provided configuration
+        # Assuming args.agent_config can be copied or is suitable for multiple instances
+        agent_instance = getattr(module_agent, agent_class_name)(args.agent_config)
+
+        # Remove the parent directory from sys.path to avoid pollution
+        sys.path.pop(0)
+
+        # Add the created agent instance to the list
+        agents_instances.update({f"hero_{i}": agent_instance})
+
+    return agents_instances
 
 def get_policy_for_agent(agent: AutonomousAgent):
     def policy(obs):
@@ -87,55 +106,62 @@ def get_policy_for_agent(agent: AutonomousAgent):
     return policy
 
 def main(args):
-    # Set environment variable for the scenario runner root. It can be found in the virtual environment.
-
     logging.basicConfig(
         level=logging.DEBUG,
         format="%(asctime)s - %(filename)s - [%(levelname)s] - %(message)s",
     )
 
     actor_config = ActorConfiguration(
-        rolename="hero",
+        rolename="hero_0",
         model="vehicle.lincoln.mkz_2017",
         transform=None
     )
-    # agent = agent_loader(args)
-    agent = AutopilotAgent(role_name=actor_config.rolename, carla_host="localhost", carla_port=2000)
-    env = mats_gym.route_scenario_env(
+    
+    # Create individual agent instance to decide seperately
+    # agent_instances = {f"hero_{i}": agent_loader(args) for i in range(NUM_EGO_VEHICLES)}
+    agent_instances = load_agents(args, NUM_EGO_VEHICLES)
+    
+    env = mats_gym.parallel_env(
         route_file=args.routes,
-        agent_instance=agent, # added 
+        agent_instances=agent_instances, # added 
         actor_configuration=actor_config,
-        render_mode="human",
-        render_config=renderers.camera_top(agent="hero"),
-        # render_config=renderers.camera_pov(agent="hero"),
-        sensor_specs={"hero": agent.sensors()},  # sensor specs for each agent
+        # Rendering
+        no_rendering_mode=True,
+        # render_mode="human",
+        # render_config=renderers.camera_top(agent="hero_0"), # whether to render with pygame
+        # debug_mode=True, # whether to draw waypoints
+
+        num_agents = NUM_EGO_VEHICLES,
+        sensor_specs={agent_id: agent_ins.sensors() for agent_id, agent_ins in agent_instances.items()},  # sensor specs for each agent
+        timestep=0.05, # fixed_delta_seconds: interval of function step means in carla
     )
 
     client = carla.Client("localhost", 2000)
-    client.set_timeout(120.0)
+    client.set_timeout(60.0)
 
     t = 0
     for _ in range(100):
         obs, info = env.reset(options={"client": client})
+        
+        for agent_ins in agent_instances.values():
+            # Find whether route_index is in setup signature
+            setup_signature = inspect.signature(agent_ins.setup)
+            route_index_param = 'route_index' in setup_signature.parameters 
+            if route_index_param:
+                agent_ins.setup(path_to_conf_file=args.agent_config, route_index=None)
+            else:
+                agent_ins.setup(path_to_conf_file=args.agent_config)
 
-        setup_signature = inspect.signature(agent.setup)
-        # find whether route_index is in setup signature
-        route_index_param = 'route_index' in setup_signature.parameters 
-        if route_index_param:
-            agent.setup(path_to_conf_file=args.agent_config, route_index=None)
-        else:
-            agent.setup(path_to_conf_file=args.agent_config)
-
-        policy = get_policy_for_agent(agent)
+        policy = {agent_id : get_policy_for_agent(agent_instance) for agent_id, agent_instance in agent_instances.items()}
         done = False
         while not done:
-            # Use agent to get control for the current step
-            actions = {agent: policy(o) for agent, o in obs.items()}
+            # Get action with certain policy
+            actions = {agent: policy[agent](o) for agent, o in obs.items()}
             obs, reward, done, truncated, info = env.step(actions)
-            done = done["hero"]
+            done = all(done.values())
             env.render()
             t += 1
-            print("EVENTS: ", info["hero"]["events"])
+            print("EVENTS: ", info["hero_0"]["events"])
 
     env.close()
 
@@ -143,9 +169,7 @@ def main(args):
 import argparse
 from argparse import RawTextHelpFormatter
 if __name__ == "__main__":
-    
-    policy = 'garage' # options: 'garage', 'lmdrive', 'ppo'
-    config = config_loader(policy)
+    config = config_loader(POLICY)
 
     description = "Multi-Agent env with carla garage\n"
     # general parameters
