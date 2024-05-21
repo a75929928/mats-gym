@@ -6,7 +6,7 @@ import pettingzoo
 
 from mats_gym.envs import RouteScenarioEnv, ParallelEnv
 from mats_gym.envs.base_env import BaseScenarioEnv
-from mats_gym.envs.adapters import ScenarioRunnerEnv, ScenicEnv, OpenScenarioEnv
+from mats_gym.envs.adapters import ScenarioRunnerEnv, ScenicEnv, OpenScenarioEnv, CommunicationEnv
 
 
 def _make_env(ctor: Type, **kwargs):
@@ -46,4 +46,7 @@ def route_scenario_env(host: str = None, port: int = None, **kwargs) -> RouteSce
 
 def parallel_env(host: str = None, port: int = None, **kwargs) -> ParallelEnv:
     return _make_env(ParallelEnv, host=host, port=port, **kwargs)
+
+def communication_env(host: str = None, port: int = None, **kwargs) -> CommunicationEnv:
+    return _make_env(CommunicationEnv, host=host, port=port, **kwargs)
 
