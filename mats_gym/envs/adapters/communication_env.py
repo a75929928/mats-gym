@@ -36,6 +36,7 @@ class CommunicationEnv(ParallelEnv):
             no_rendering_mode: bool = False,
             **kwargs,
     ):
+        
         super().__init__(actor_configuration, agent_instances, num_agents, reset_progress_threshold,
                          debug_mode, no_rendering_mode, **kwargs)
     def step(self, action: dict) -> tuple[dict[AgentID, ObsType], dict[AgentID, float], dict, dict]:

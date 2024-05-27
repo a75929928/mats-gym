@@ -35,7 +35,7 @@ import inspect
 # Choose which policy to use
 # Options: 'garage','expert, TODO 'lmdrive', 'ppo', 'transfuser', 
 POLICY = 'garage' 
-NUM_EGO_VEHICLES = 20
+NUM_EGO_VEHICLES = 1
 
 def replace_config_values(config_dict, key_value_dict):
     for key, value in config_dict.items():
@@ -122,14 +122,14 @@ def main(args):
     agent_instances = load_agents(args, NUM_EGO_VEHICLES)
     
     env = mats_gym.parallel_env(
-        route_file=args.routes,
+        # route_file=args.routes,
         agent_instances=agent_instances, # added 
         actor_configuration=actor_config,
         # Rendering
-        no_rendering_mode=True,
-        # render_mode="human",
-        # render_config=renderers.camera_top(agent="hero_0"), # whether to render with pygame
-        # debug_mode=True, # whether to draw waypoints
+        no_rendering_mode=False,
+        render_mode="human",
+        render_config=renderers.camera_pov(agent="hero_0"), # whether to render with pygame
+        debug_mode=True, # whether to draw waypoints
 
         num_agents = NUM_EGO_VEHICLES,
         sensor_specs={agent_id: agent_ins.sensors() for agent_id, agent_ins in agent_instances.items()},  # sensor specs for each agent

@@ -26,7 +26,11 @@ from agents.navigation.local_planner import RoadOption
 from srunner.scenarioconfigs.scenario_configuration import ActorConfigurationData
 from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 
-from srunner.scenariomanager.scenarioatomics.atomic_behaviors import ScenarioTriggerer, Idle
+from srunner.scenariomanager.scenarioatomics.atomic_behaviors import (ScenarioTriggerer, 
+                                                                      Idle,
+                                                                      InvadingActorFlow,
+                                                                      OppositeActorFlow)
+
 from srunner.scenariomanager.scenarioatomics.atomic_trigger_conditions import WaitForBlackboardVariable
 from srunner.scenariomanager.scenarioatomics.atomic_criteria import (CollisionTest,
                                                                      InRouteTest,
@@ -138,6 +142,8 @@ class RouteParallel(BasicScenario):
         for ego_vehicle  in self.ego_vehicles:
             _role_name = ego_vehicle.attributes["role_name"]
             behavior.add_child(BackgroundBehavior(ego_vehicle, self.route[_role_name], name="BackgroundActivity"))
+            behavior.add_child(InvadingActorFlow(ego_vehicle, self.route[_role_name], name="InvadingActorFlow"))
+
         return behavior
     
     # TODO add various Tests
