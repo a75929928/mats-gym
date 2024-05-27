@@ -34,7 +34,7 @@ import inspect
 
 # Choose which policy to use
 # Options: 'garage','expert, TODO 'lmdrive', 'ppo', 'transfuser', 
-POLICY = 'garage' 
+POLICY = 'expert' 
 NUM_EGO_VEHICLES = 20
 
 def replace_config_values(config_dict, key_value_dict):
