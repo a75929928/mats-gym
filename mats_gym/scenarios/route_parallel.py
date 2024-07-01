@@ -142,7 +142,7 @@ class RouteParallel(BasicScenario):
         for ego_vehicle  in self.ego_vehicles:
             _role_name = ego_vehicle.attributes["role_name"]
             behavior.add_child(BackgroundBehavior(ego_vehicle, self.route[_role_name], name="BackgroundActivity"))
-            behavior.add_child(InvadingActorFlow(ego_vehicle, self.route[_role_name], name="InvadingActorFlow"))
+            # behavior.add_child(InvadingActorFlow(ego_vehicle, self.route[_role_name], name="InvadingActorFlow"))
 
         return behavior
     

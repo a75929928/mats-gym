@@ -1,7 +1,7 @@
-CARLA_ROOT: 'D:/Code/carla/CARLA_0.9.15'
-WORK_DIR: 'D:/Code/.SOTA/carla_garage'
+CARLA_ROOT: 'D:/Code/carla/Official/CARLA_0.9.15'
+WORK_DIR: 'D:/Code/carla/SOTA/carla_garage'
 MATS_ROOT: 'D:/Code/carla/mats-gym'
-SRUNNER_0910_ROOT: 'D:/Code/carla/scenario_runner-0.9.10'
+SRUNNER_0910_ROOT: 'D:/Code/carla/Official/scenario_runner-0.9.10'
 CARLA_SERVER: '%CARLA_ROOT%/CarlaUE4.exe'
 
 PYTHONPATH: ''

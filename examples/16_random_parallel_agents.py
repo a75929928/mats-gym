@@ -32,6 +32,10 @@ import os
 import yaml
 import inspect
 
+import time
+
+os.environ['CURL_CA_BUNDLE'] = ''
+
 # Choose which policy to use
 # Options: 'garage','expert, TODO 'lmdrive', 'ppo', 'transfuser', 
 POLICY = 'garage' 
@@ -66,19 +70,12 @@ def config_loader(policy):
 def load_agents(args, num_agents):
     """
     Load multiple agent instances using importlib.
-
-    :param args: The arguments containing the path to the agent module and its configuration.
-    :param num_agents: The number of agent instances to load.
-    :return: A list of agent instances.
     """
-    # List to store the loaded agent instances
-    agents_instances = {}
-
+    sys.path.insert(0, os.path.dirname(args.agent))
+    
     # Load each agent instance
+    agents_instances = {}
     for i in range(num_agents):
-        # Insert parent dir to path
-        sys.path.insert(0, os.path.dirname(args.agent))
-
         # Import the agent module
         module_name = os.path.basename(args.agent).split('.')[0]
         module_agent = importlib.import_module(module_name)
@@ -90,12 +87,10 @@ def load_agents(args, num_agents):
         # Assuming args.agent_config can be copied or is suitable for multiple instances
         agent_instance = getattr(module_agent, agent_class_name)(args.agent_config)
 
-        # Remove the parent directory from sys.path to avoid pollution
-        sys.path.pop(0)
-
         # Add the created agent instance to the list
         agents_instances.update({f"hero_{i}": agent_instance})
 
+    sys.path.pop(0)
     return agents_instances
 
 def get_policy_for_agent(agent: AutonomousAgent):
@@ -129,6 +124,7 @@ def main(args):
         no_rendering_mode=False,
         render_mode="human",
         render_config=renderers.camera_pov(agent="hero_0"), # whether to render with pygame
+        # render_config=renderers.camera_pov(agent="hero_0"), # whether to render with pygame
         debug_mode=True, # whether to draw waypoints
 
         num_agents = NUM_EGO_VEHICLES,
@@ -156,7 +152,10 @@ def main(args):
         done = False
         while not done:
             # Get action with certain policy
+            # start_time = time.time()
             actions = {agent: policy[agent](o) for agent, o in obs.items()}
+            # end_time = time.time()
+            # print(f"one step per {end_time-start_time}")
             obs, reward, done, truncated, info = env.step(actions)
             done = all(done.values())
             env.render()
@@ -185,7 +184,6 @@ if __name__ == "__main__":
     parser.add_argument('--record', type=str, default='',
                         help='Use CARLA recording feature to create a recording of the scenario')
     parser.add_argument('--timeout', 
-                        # default=config["TIMEOUT"],
                         default="60.0",
                         help='Set the CARLA client timeout value in seconds')
 
@@ -193,11 +191,9 @@ if __name__ == "__main__":
     parser.add_argument('--routes',
                         help='Name of the route to be executed. Point to the route_xml_file to be executed.',
                         default=config["ROUTES"])
-                        # required=True)
     parser.add_argument('--scenarios',
                         help='Name of the scenario annotation file to be mixed with the route.',
                         default=config["SCENARIOS"])
-                        # required=True)
     parser.add_argument('--repetitions',
                         type=int,
                         default=config["REPETITIONS"],
@@ -207,10 +203,8 @@ if __name__ == "__main__":
     # agent-related options
     parser.add_argument("-a", "--agent", type=str, help="Path to Agent's py file to evaluate", 
                         default=config["TEAM_AGENT"])
-                        # required=True)
     parser.add_argument("--agent-config", type=str, help="Path to Agent's configuration file", 
                         default=config["AGENT_CONFIG"])
-                        # default="")
 
     parser.add_argument("--track", type=str, 
                         default=config["CHALLENGE_TRACK_CODENAME"], 

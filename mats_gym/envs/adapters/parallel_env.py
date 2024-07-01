@@ -41,7 +41,7 @@ class ParallelEnv(BaseScenarioEnvWrapper):
 
         config = RouteScenarioConfiguration()
         config.name = kwargs.get("name", "default")
-        config.town = kwargs.get("town", "Town01")
+        config.town = kwargs.get("town", "Town05")
         config.weather = kwargs.get("weather", carla.WeatherParameters(sun_altitude_angle=70, cloudiness=50))
         
         # Change _ego_role_name from cetain agent to list of agent id
