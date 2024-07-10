@@ -1,9 +1,9 @@
 # Autopilot
-CARLA_ROOT: 'D:/Code/carla/CARLA_0.9.15'
-MATS_ROOT: 'D:/Code/carla/mats-gym'
+# CARLA_ROOT: 'D:/Code/carla/CARLA_0.9.15'
+MATS_ROOT: '/home/hjh/carla/Gym/mats-gym'
 
-PYTHONPATH: ''
-PYTHONPATH: '%PYTHONPATH%;%CARLA_ROOT%/PythonAPI;%CARLA_ROOT%/PythonAPI/carla'
+# PYTHONPATH: ''
+# PYTHONPATH: '%PYTHONPATH%;%CARLA_ROOT%/PythonAPI;%CARLA_ROOT%/PythonAPI/carla'
 
 SCENARIOS: '%WORK_DIR%/leaderboard/data/scenarios/eval_scenarios.json'
 ROUTES: '%MATS_ROOT%/scenarios/routes/training.xml'

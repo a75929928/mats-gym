@@ -1,15 +1,17 @@
-CARLA_ROOT: 'D:/Code/carla/Official/CARLA_0.9.15'
-WORK_DIR: 'D:/Code/carla/SOTA/carla_garage'
-MATS_ROOT: 'D:/Code/carla/mats-gym'
-SRUNNER_0910_ROOT: 'D:/Code/carla/Official/scenario_runner-0.9.10'
-CARLA_SERVER: '%CARLA_ROOT%/CarlaUE4.exe'
+CARLA_ROOT: '/home/hjh/carla/Official/CARLA_0.9.15'
+WORK_DIR: '/home/hjh/carla/carla_garage'
+AVR_ROOT: '/home/hjh/carla/V2V/Coopernaut/AutoCastSim'
+MATS_ROOT: '/home/hjh/carla/Gym/mats-gym'
+# SRUNNER_0910_ROOT: 'D:/Code/carla/Official/scenario_runner-0.9.10'
+# CARLA_SERVER: '%CARLA_ROOT%/CarlaUE4.exe'
 
 PYTHONPATH: ''
 PYTHONPATH: '%PYTHONPATH%;%CARLA_ROOT%/PythonAPI;%CARLA_ROOT%/PythonAPI/carla'
 
-SCENARIOS: '%WORK_DIR%/leaderboard/data/scenarios/eval_scenarios.json'
+SCENARIOS: '%AVR_ROOT%/srunner/data/towns01_traffic_scenarios_autocast6.json'
+# SCENARIOS: '%WORK_DIR%/leaderboard/data/scenarios/eval_scenarios.json'
+ROUTES: '%AVR_ROOT%/srunner/data/routes_training_town01_autocast6.xml' # Town12
 # ROUTES: '%SRUNNER_0910_ROOT%/srunner/data/routes_debug.xml' # Town02
-ROUTES: '%MATS_ROOT%/scenarios/routes/training.xml' # Town12
 REPETITIONS: '1'
 CHALLENGE_TRACK_CODENAME: 'SENSORS'
 CHECKPOINT_ENDPOINT: '%WORK_DIR%/results/transfuser_plus_plus_longest6.json'

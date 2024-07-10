@@ -126,7 +126,7 @@ def main():
     for _ in range(NUM_EPISODES):
         # The client can be passed as late as on the first call to reset.
         obs, info = env.reset(options={"client": carla.Client("localhost", 2000)})
-        done = False
+        done = True
         while not done:
             actions = {agent: policy() for agent in env.agents}
             obs, reward, done, truncated, info = env.step(actions)

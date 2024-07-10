@@ -30,6 +30,11 @@ from mats_gym.util import network
 
 import time
 
+from opencda.core.sensing.perception.o3d_lidar_libs import \
+    o3d_visualizer_init, o3d_pointcloud_encode, o3d_visualizer_show, \
+    o3d_camera_lidar_fusion
+import cv2
+
 from collections import OrderedDict
 class BaseScenarioEnv(ParallelEnv):
     """
@@ -235,8 +240,18 @@ class BaseScenarioEnv(ParallelEnv):
         if agent in self._sensors:
             sensor_obs = self._sensors[agent].get_observations()
             obs.update(sensor_obs)
+            # Extra: get coordinate data and camera intrinsic matrix
+            # of sensor suite required by OpenCDA recorder
+            transform_information = {}
+            intrinsic_matrix = {}
+            for _sensor_name, _sensor_instance in self._sensors[agent]._sensor_builders.items():
+                transform_information.update({_sensor_name: _sensor_instance.transform})
+                if _sensor_instance.spec['type'].startswith("sensor.camera"):
+                    intrinsic_matrix.update({_sensor_name: self.get_camera_intrinsic(_sensor_instance)})
 
-        # return obs
+            obs.update({'transform_info': transform_information})
+            obs.update({'intrinsic_matrix': intrinsic_matrix})
+            
         return OrderedDict(obs)
 
     def _reload_world(self, reload_world: bool = True):
@@ -573,3 +588,23 @@ class BaseScenarioEnv(ParallelEnv):
                     self._events[node.id].append(event)
             events[agent_id].extend(self._events[node.id])
         return events
+
+    def get_camera_intrinsic(self, sensor):
+        """
+        Retrieve the camera intrinsic matrix.
+        Copied from opencda.core.sensing.perception.sensor_transformation
+        """
+        VIEW_WIDTH = int(sensor.width)
+        VIEW_HEIGHT = int(sensor.height)
+        VIEW_FOV = int(float(sensor.fov))
+        # VIEW_WIDTH = int(sensor.attributes['image_size_x'])
+        # VIEW_HEIGHT = int(sensor.attributes['image_size_y'])
+        # VIEW_FOV = int(float(sensor.attributes['fov']))
+
+        matrix_k = np.identity(3)
+        matrix_k[0, 2] = VIEW_WIDTH / 2.0
+        matrix_k[1, 2] = VIEW_HEIGHT / 2.0
+        matrix_k[0, 0] = matrix_k[1, 1] = VIEW_WIDTH / \
+            (2.0 * np.tan(VIEW_FOV * np.pi / 360.0))
+
+        return matrix_k

@@ -52,44 +52,32 @@ def replace_config_values(config_dict, key_value_dict):
             # Consider dictionary, use recursion
             replace_config_values(value, key_value_dict)
 
-def config_loader(policy):
+def yaml_loader(policy):
     yaml_path = os.path.join(os.path.dirname(__file__), 'configs', policy + '.yml')
     with open(yaml_path, 'r') as file:
         config = yaml.safe_load(file)
-
-    # Change %key% in config string to the actual path
     key_value_dict = {k: v for k, v in config.items() if not k.startswith('%')}
     replace_config_values(config, key_value_dict)
-
     for key, value in config.items():
         if isinstance(value, str):
             config[key] = os.path.expandvars(value)
-
     return config
 
-def load_agents(args, num_agents):
+def load_policy(args, num_agents):
     """
-    Load multiple agent instances using importlib.
+    Load multiple agent instances using importlib
     """
-    sys.path.insert(0, os.path.dirname(args.agent))
-    
+    # TODO add several policy parallelly
     # Load each agent instance
     agents_instances = {}
+    sys.path.insert(0, os.path.dirname(args.agent))
     for i in range(num_agents):
-        # Import the agent module
         module_name = os.path.basename(args.agent).split('.')[0]
         module_agent = importlib.import_module(module_name)
 
-        # Get the agent class name from the entry point function
         agent_class_name = getattr(module_agent, 'get_entry_point')()
-
-        # Create an instance of the agent class with the provided configuration
-        # Assuming args.agent_config can be copied or is suitable for multiple instances
         agent_instance = getattr(module_agent, agent_class_name)(args.agent_config)
-
-        # Add the created agent instance to the list
         agents_instances.update({f"hero_{i}": agent_instance})
-
     sys.path.pop(0)
     return agents_instances
 
@@ -112,34 +100,29 @@ def main(args):
         transform=None
     )
     
-    # Create individual agent instance to decide seperately
-    # agent_instances = {f"hero_{i}": agent_loader(args) for i in range(NUM_EGO_VEHICLES)}
-    agent_instances = load_agents(args, NUM_EGO_VEHICLES)
-    
+    policy_instances = load_policy(args, NUM_EGO_VEHICLES)
     env = mats_gym.parallel_env(
         # route_file=args.routes,
-        agent_instances=agent_instances, # added 
+        agent_instances=policy_instances, # added 
         actor_configuration=actor_config,
         # Rendering
-        no_rendering_mode=False,
-        render_mode="human",
-        render_config=renderers.camera_pov(agent="hero_0"), # whether to render with pygame
+        no_rendering_mode=True,
+        # render_mode="human",
         # render_config=renderers.camera_pov(agent="hero_0"), # whether to render with pygame
-        debug_mode=True, # whether to draw waypoints
+        # debug_mode=True, # whether to draw waypoints
 
         num_agents = NUM_EGO_VEHICLES,
-        sensor_specs={agent_id: agent_ins.sensors() for agent_id, agent_ins in agent_instances.items()},  # sensor specs for each agent
+        sensor_specs={agent_id: agent_ins.sensors() for agent_id, agent_ins in policy_instances.items()},  # sensor specs for each agent
         timestep=0.05, # fixed_delta_seconds: interval of function step means in carla
     )
 
     client = carla.Client("localhost", 2000)
     client.set_timeout(60.0)
 
-    t = 0
     for _ in range(100):
         obs, info = env.reset(options={"client": client})
         
-        for agent_ins in agent_instances.values():
+        for agent_ins in policy_instances.values():
             # Find whether route_index is in setup signature
             setup_signature = inspect.signature(agent_ins.setup)
             route_index_param = 'route_index' in setup_signature.parameters 
@@ -148,27 +131,31 @@ def main(args):
             else:
                 agent_ins.setup(path_to_conf_file=args.agent_config)
 
-        policy = {agent_id : get_policy_for_agent(agent_instance) for agent_id, agent_instance in agent_instances.items()}
-        done = False
-        while not done:
-            # Get action with certain policy
-            # start_time = time.time()
+        policy = {agent_id : get_policy_for_agent(agent_instance) for agent_id, agent_instance in policy_instances.items()}
+        terminated = False
+        while not terminated:
             actions = {agent: policy[agent](o) for agent, o in obs.items()}
-            # end_time = time.time()
-            # print(f"one step per {end_time-start_time}")
-            obs, reward, done, truncated, info = env.step(actions)
-            done = all(done.values())
+            obs, reward, terminated, truncated, info = env.step(actions)
             env.render()
-            t += 1
-            print("EVENTS: ", info["hero_0"]["events"])
 
+            print("EVENTS: ")
+            flag = False # detect whether agent collided
+            # flag = True # for debug
+            for agent in obs:
+                events = info[agent]['events']
+                if len(events) > 0: print(agent,  events)
+                for event in events:
+                    if 'COLLISION' in event: flag = True
+            terminated = all(terminated.values()) or flag
+            
     env.close()
 
 
 import argparse
 from argparse import RawTextHelpFormatter
+import subprocess
 if __name__ == "__main__":
-    config = config_loader(POLICY)
+    config = yaml_loader(POLICY)
 
     description = "Multi-Agent env with carla garage\n"
     # general parameters
@@ -196,8 +183,7 @@ if __name__ == "__main__":
                         default=config["SCENARIOS"])
     parser.add_argument('--repetitions',
                         type=int,
-                        default=config["REPETITIONS"],
-                        # default=1,
+                        default=1,
                         help='Number of repetitions per route.')
 
     # agent-related options
@@ -208,17 +194,22 @@ if __name__ == "__main__":
 
     parser.add_argument("--track", type=str, 
                         default=config["CHALLENGE_TRACK_CODENAME"], 
-                        # default='SENSORS', 
                         help="Participation track: SENSORS, MAP")
     parser.add_argument('--resume', type=bool, 
                         default=(config["RESUME"]==1), 
-                        # default=False, 
                         help='Resume execution from last checkpoint?')
     parser.add_argument("--checkpoint", type=str,
                         default=config["CHECKPOINT_ENDPOINT"],
-                        # default='./simulation_results.json',
                         help="Path to checkpoint used for saving statistics and resuming")
+
+    # add paralisim via launch_carla
+    parser.add_argument('--cuda_visible_devices', type=str, default='0')
+    parser.add_argument('--num-workers', type=int, default=1)
 
     arguments = parser.parse_args()
 
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    script_path = os.path.join(current_dir, "scripts", "launch_carla.sh")
+    p=subprocess.Popen([script_path, str(arguments.cuda_visible_devices), str(arguments.num_workers), str(int(arguments.port)+11*int(arguments.cuda_visible_devices))])
+    
     main(arguments)

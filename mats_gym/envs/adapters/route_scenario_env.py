@@ -153,7 +153,7 @@ class RouteScenarioEnv(BaseScenarioEnvWrapper):
                 continue
 
             route_config = RouteScenarioConfiguration()
-            route_config.town = route.attrib["town"]
+            route_config.town = route.attrib["map"]
             route_config.name = "RouteScenario_{}".format(route_id)
             route_config.weather = self._parse_weather(route)
             
@@ -161,8 +161,8 @@ class RouteScenarioEnv(BaseScenarioEnvWrapper):
 
             # The list of carla.Location that serve as keypoints on this route
             positions = []
-            # for position in route.iter('waypoint'):
-            for position in route.find('waypoints').iter('position'):
+            for position in route.iter('waypoint'):
+            # for position in route.find('waypoints').iter('position'):
                 loc = carla.Location(
                     x=float(position.attrib['x']),
                     y=float(position.attrib['y']),
