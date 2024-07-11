@@ -17,7 +17,7 @@ setup(
     name="mats_gym",
     version="1.0.0",
     long_description=long_description,
-    install_requires=requirements,
+    # install_requires=requirements,
     extras_require={
         "dev": [
             "black",
