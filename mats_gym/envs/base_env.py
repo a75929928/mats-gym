@@ -228,6 +228,8 @@ class BaseScenarioEnv(ParallelEnv):
             velocity.z,
         ], dtype=np.float32)
 
+        obs["transform"] = transform
+
         # compute speed by projecting velocity into forward direction
         forward_vector = transform.get_forward_vector()
         velocity_vector = obs["velocity"]
@@ -241,7 +243,8 @@ class BaseScenarioEnv(ParallelEnv):
             sensor_obs = self._sensors[agent].get_observations()
             obs.update(sensor_obs)
             # Extra: get coordinate data and camera intrinsic matrix
-            # of sensor suite required by OpenCDA recorder
+            # TODO sensor transform itself seems never move, revise them
+            # for sensor suite required by OpenCDA recorder
             transform_information = {}
             intrinsic_matrix = {}
             for _sensor_name, _sensor_instance in self._sensors[agent]._sensor_builders.items():

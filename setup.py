@@ -28,6 +28,8 @@ setup(
     packages=find_packages(exclude=["maps", "cache", "scenarios"]),
     package_dir={
       "mats_gym": "mats_gym",
-      "agents": "agents"
+      "agents": "agents",
+      "opencood": "opencood",
+      "logreplay": "logreplay"
     }
 )
