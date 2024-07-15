@@ -123,7 +123,7 @@ class CameraSensorBuilder(SensorBuilder):
             )
         )
         return sensor
-
+    
 
 class LidarSensorBuilder(SensorBuilder):
     """

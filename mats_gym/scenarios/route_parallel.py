@@ -60,6 +60,16 @@ import carla
 SECONDS_GIVEN_PER_METERS = 0.4
 MIN_DISTANCE = 100.0
 
+DESIGNED_ROUTE_TOWN01 = [
+                            [carla.libcarla.Transform(location = carla.Location(12.00, 192.31, 0.3), 
+                                                   rotation = carla.Rotation(0, -90, 0)), 
+                            carla.libcarla.Transform(location = carla.Location(67.12, 150.2, 1.0))], 
+                            [carla.libcarla.Transform(location = carla.Location(-5.51, 110.24, 0.3), 
+                                                    rotation = carla.Rotation(0, 90, 0)), \
+                            carla.libcarla.Transform(location = carla.Location(-2.43, 263, 0.3))]
+                        ]
+
+
 class RouteParallel(BasicScenario):
 
     def __init__(self, world, config, debug_mode=False, criteria_enable=True, timeout=300):
@@ -80,36 +90,21 @@ class RouteParallel(BasicScenario):
                 f"Setting route for {agent_id}."
                 )
                 
-                '''
-                Determine start point for test
-                '''
-                # start_point = random.choice(sp)
-                start_point = carla.libcarla.Transform(location = carla.Location(12.00, 192.31, 0.3),
-                                                       rotation = carla.Rotation(0, -90, 0))
-                end_point = carla.libcarla.Transform(location = carla.Location(67.12, 150.2, 1.0))
-
-                candidate_points = [point for point in sp if point != start_point and point.location.distance(start_point.location) > MIN_DISTANCE]
-                if not candidate_points:
-                    print("Warning: No suitable end point found, returning empty route.")
-                    return []
-                # end_point = random.choice(candidate_points)
+                if len(config.agents) == 2 and len(self.route) > 0: 
+                    # double agents share the same route
+                    start_point_former = start_point
+                    start_point_dist = 0.0
+                    while start_point_dist < 1.0 or start_point_dist > 50.0:
+                        start_point = random.choice(sp)
+                        start_point_dist = start_point_former.location.distance(start_point.location)
+                else: 
+                    start_point = random.choice(sp)
+                    candidate_points = [point for point in sp if point != start_point and point.location.distance(start_point.location) > MIN_DISTANCE]
+                    if not candidate_points:
+                        print("Warning: No suitable end point found, returning empty route.")
+                        return []
+                    end_point = random.choice(candidate_points)
                 
-                if len(config.agents) == 2 and len(self.route) > 0:
-                    # the latter spawned vehicle should start in front of the former
-
-                    # start_point_former = start_point
-                    # start_point_dist = 0.0
-                    # while start_point_dist < 1.0 or start_point_dist > 5.0:
-                    #     start_point = random.choice(sp)
-                    #     start_point_dist = start_point_former.location.distance(start_point.location)
-                    
-                    '''
-                    Determine start point for test
-                    '''
-                    start_point = carla.libcarla.Transform(location = carla.Location(-5.51, 110.24, 0.3),
-                                                    rotation = carla.Rotation(0, 90, 0))
-                    end_point = carla.libcarla.Transform(location = carla.Location(-2.43, 263, 0.3))
-                    
                 route = self._get_route(world, config, agent_id, start_point, end_point)
                 self.route.update({agent_id: route})
                 ego_vehicle = self._spawn_ego_vehicle(agent_id)
@@ -117,6 +112,7 @@ class RouteParallel(BasicScenario):
             ego_vehicles.append(ego_vehicle)
 
         self.timeout = 60
+        
         if debug_mode:
             for agent_id in config.agents:
                 self._draw_waypoints(world, self.route[agent_id], vertical_shift=0.1, size=0.1, persistency=self.timeout, downsample=5)
