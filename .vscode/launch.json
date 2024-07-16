@@ -10,6 +10,34 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
-        }
+        },
+        {
+            "name": "CoBEVT_train",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "python": "/home/hjh/miniconda3/envs/heal/bin/python",
+            "program": "opencood/tools/train.py",
+            "cwd": "/home/hjh/carla/Gym/mats-gym",
+            // "args": ["-y=/home/hjh/carla/Gym/mats-gym/opencood/hypes_yaml/opv2v/MoreModality/2_modality_end2end_training/lidar_camera_cobevt_finetune.yaml",
+            //         "--model_dir=/home/hjh/carla/Gym/mats-gym/ckpt/opv2v_cobevt_liadrcamera"],
+            "args": ["-y=/home/hjh/carla/Gym/mats-gym/opencood/hypes_yaml/opv2v/MoreModality/2_modality_end2end_training/lidar_camera_cobevt_mats.yaml"],
+            // "args": ["-y /home/hjh/carla/Gym/mats-gym/opencood/hypes_yaml/opv2v/CameraOnly/camera_mats.yaml"],
+            "env": {},
+            "justMyCode": false,
+        },
+        {
+            "name": "CoBEVT_train_finetune",
+            "type": "debugpy",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "python": "/home/hjh/miniconda3/envs/heal/bin/python",
+            "program": "opencood/tools/train.py",
+            "cwd": "/home/hjh/carla/Gym/mats-gym",
+            "args": ["-y=/home/hjh/carla/Gym/mats-gym/opencood/hypes_yaml/opv2v/MoreModality/2_modality_end2end_training/lidar_camera_cobevt_finetune.yaml",
+                    "--model_dir=/home/hjh/carla/Gym/mats-gym/ckpt/opv2v_cobevt_liadrcamera"],
+            "env": {},
+            "justMyCode": false,
+        },
     ]
 }
