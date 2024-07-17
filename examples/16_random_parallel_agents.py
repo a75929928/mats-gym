@@ -106,10 +106,10 @@ def main(args):
         agent_instances=policy_instances, # added 
         actor_configuration=actor_config,
         # Rendering
-        no_rendering_mode=True,
-        # render_mode="human",
-        # render_config=renderers.camera_pov(agent="hero_0"), # whether to render with pygame
-        # debug_mode=True, # whether to draw waypoints
+        # no_rendering_mode=True,
+        render_mode="human",
+        render_config=renderers.camera_pov(agent="hero_0"), # whether to render with pygame
+        debug_mode=True, # whether to draw waypoints
 
         num_agents = NUM_EGO_VEHICLES,
         sensor_specs={agent_id: agent_ins.sensors() for agent_id, agent_ins in policy_instances.items()},  # sensor specs for each agent
@@ -175,12 +175,12 @@ if __name__ == "__main__":
                         help='Set the CARLA client timeout value in seconds')
 
     # simulation setup
-    parser.add_argument('--routes',
-                        help='Name of the route to be executed. Point to the route_xml_file to be executed.',
-                        default=config["ROUTES"])
-    parser.add_argument('--scenarios',
-                        help='Name of the scenario annotation file to be mixed with the route.',
-                        default=config["SCENARIOS"])
+    # parser.add_argument('--routes',
+    #                     help='Name of the route to be executed. Point to the route_xml_file to be executed.',
+    #                     default=config["ROUTES"])
+    # parser.add_argument('--scenarios',
+    #                     help='Name of the scenario annotation file to be mixed with the route.',
+    #                     default=config["SCENARIOS"])
     parser.add_argument('--repetitions',
                         type=int,
                         default=1,
@@ -208,8 +208,8 @@ if __name__ == "__main__":
 
     arguments = parser.parse_args()
 
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    script_path = os.path.join(current_dir, "scripts", "launch_carla.sh")
-    p=subprocess.Popen([script_path, str(arguments.cuda_visible_devices), str(arguments.num_workers), str(int(arguments.port)+11*int(arguments.cuda_visible_devices))])
+    # current_dir = os.path.dirname(os.path.abspath(__file__))
+    # script_path = os.path.join(current_dir, "scripts", "launch_carla.sh")
+    # p=subprocess.Popen([script_path, str(arguments.cuda_visible_devices), str(arguments.num_workers), str(int(arguments.port)+11*int(arguments.cuda_visible_devices))])
     
     main(arguments)

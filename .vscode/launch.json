@@ -34,7 +34,7 @@
             "python": "/home/hjh/miniconda3/envs/heal/bin/python",
             "program": "opencood/tools/train.py",
             "cwd": "/home/hjh/carla/Gym/mats-gym",
-            "args": ["-y=/home/hjh/carla/Gym/mats-gym/opencood/hypes_yaml/opv2v/MoreModality/2_modality_end2end_training/lidar_camera_cobevt_finetune.yaml",
+            "args": ["-y=/home/hjh/carla/Gym/mats-gym/opencood/hypes_yaml/opv2v/MoreModality/2_modality_end2end_training/lidar_camera_cobevt_mats_finetune.yaml",
                     "--model_dir=/home/hjh/carla/Gym/mats-gym/ckpt/opv2v_cobevt_liadrcamera"],
             "env": {},
             "justMyCode": false,

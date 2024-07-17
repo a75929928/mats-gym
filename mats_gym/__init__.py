@@ -1,8 +1,8 @@
 from typing import Type
 
 import carla
-import gymnasium
-import pettingzoo
+# import gymnasium
+# import pettingzoo
 
 from mats_gym.envs import RouteScenarioEnv, ParallelEnv, ParallelRosEnv
 from mats_gym.envs.base_env import BaseScenarioEnv

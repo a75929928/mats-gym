@@ -30,6 +30,7 @@ setup(
       "mats_gym": "mats_gym",
       "agents": "agents",
       "opencood": "opencood",
-      "logreplay": "logreplay"
+      "logreplay": "logreplay",
+      "carla_garage": "carla_garage"
     }
 )
