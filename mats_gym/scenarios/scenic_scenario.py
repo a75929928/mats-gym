@@ -43,6 +43,12 @@ class ScenicSimulation(AtomicBehavior):
         self.dynamic_scenario = simulation.scene.dynamicScenario
         self.scene = simulation.scene
         self.simulation = simulation
+        self.simulation.initializeReplay(
+            replay=None,
+            enableReplay=True,
+            enableDivergenceCheck=False,
+            allowPickle=False
+        )
 
     def initialise(self):
         self.logger.debug("%s.initialise()" % (self.__class__.__name__))
